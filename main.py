@@ -3,8 +3,9 @@ import random
 
 t = turtle.Turtle()
 t.speed(0)
+t.pensize(5)
 
-colors = ["white", "red", "blue", "purple", "green", "orange", "yellow", "pink", "brown", "gray"]
+colors = ["red", "blue", "purple", "green", "orange", "yellow", "pink", "brown", "gray"]
 
 for i in range(500):
     t.color(random.choice(colors))
