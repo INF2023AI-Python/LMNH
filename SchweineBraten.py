@@ -5,7 +5,7 @@ import random
 # GPIO-Setup
 GPIO.setmode(GPIO.BCM)
 GREEN_LED_PIN = 24
-RED_LED_PIN = 24  # Achtung: Beide Pins sind 24. Für Rot und Grün benötigst du zwei verschiedene Pins.
+RED_LED_PIN = 24  # Stelle sicher, dass du unterschiedliche Pins verwendest, falls du zwei LEDs hast.
 GPIO.setup(GREEN_LED_PIN, GPIO.OUT)
 GPIO.setup(RED_LED_PIN, GPIO.OUT)
 
@@ -22,6 +22,7 @@ t = turtle.Turtle()
 t.speed(0)
 t.hideturtle()
 
+# Initialisiere das Zeichnen des Galgens
 def initialize_drawing():
     """Zeichnet das Grundgerüst des Galgens."""
     t.penup()
@@ -36,7 +37,19 @@ def initialize_drawing():
     t.right(90)
     t.forward(50)  # Kleine Stange
 
-# Galgenmännchen-Teile
+# Erratene Buchstaben anzeigen, ohne zu löschen
+def draw_guessed():
+    t.penup()
+    t.goto(-200, -200)
+    t.pendown()
+
+# Update der Darstellung der erratenen Buchstaben
+def update_guessed():
+    t.clear()  # Lösche nur den Text der erratenen Buchstaben, nicht den Galgen
+    draw_guessed()
+    t.write(" ".join(guessed), font=("Arial", 24, "normal"))
+
+# Hinzufügen der Teile des Galgenmännchens ohne Zurücksetzen
 parts = [
     lambda: draw_head(),  # Kopf
     lambda: draw_body(),  # Körper
@@ -46,12 +59,7 @@ parts = [
     lambda: draw_leg("right"),  # Rechtes Bein
 ]
 
-def draw_guessed():
-    t.penup()
-    t.goto(-200, -200)
-    t.clear()
-    t.write(" ".join(guessed), font=("Arial", 24, "normal"))
-
+# Zeichnungsfunktionen für jedes Teil des Galgenmännchens
 def draw_head():
     t.penup()
     t.goto(-25, 100)
@@ -79,9 +87,10 @@ def draw_line(start_x, start_y, end_x, end_y):
     t.pendown()
     t.goto(end_x, end_y)
 
+# Update des Spielzustands ohne Zurücksetzen des Bildschirms
 def update_game_state():
     global attempts
-    draw_guessed()
+    update_guessed()
     if "_" not in guessed:
         GPIO.output(GREEN_LED_PIN, GPIO.HIGH)  # Spieler hat gewonnen
         return True
@@ -95,6 +104,7 @@ def update_game_state():
             parts[part_index]()
     return False
 
+# Spiellogik
 def guess(letter):
     global attempts
     if letter in word:
@@ -107,7 +117,7 @@ def guess(letter):
 
 def main():
     initialize_drawing()
-    draw_guessed()
+    update_guessed()  # Initialisiere die Anzeige der erratenen Buchstaben
     while True:
         user_guess = input("Rate einen Buchstaben: ").lower()
         if len(user_guess) != 1 or not user_guess.isalpha():
