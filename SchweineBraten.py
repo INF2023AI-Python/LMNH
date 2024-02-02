@@ -2,24 +2,20 @@ import RPi.GPIO as GPIO
 import turtle
 import random
 
-# Setze die Pin-Nummerierung auf die GPIO-Bezeichnungen
+# GPIO-Setup
 GPIO.setmode(GPIO.BCM)
-# Pin für die LED (Annahme: zweifarbige LED mit gemeinsamer Kathode)
-GREEN_LED_PIN = 24  # Grünes LED
-RED_LED_PIN = 23    # Rotes LED
-
-# Setze die LED-Pins als Ausgang
+GREEN_LED_PIN = 24
+RED_LED_PIN = 23
 GPIO.setup(GREEN_LED_PIN, GPIO.OUT)
 GPIO.setup(RED_LED_PIN, GPIO.OUT)
 
-# Wörter für das Spiel
+# Spielvariablen
 words = ["raspberry", "python", "turtle", "gpio"]
-# Wähle ein zufälliges Wort
 word = random.choice(words)
-# Erratene Buchstaben
 guessed = ["_"] * len(word)
+attempts = 6  # Anzahl der erlaubten Fehler
 
-# Initialisiere Turtle
+# Turtle Setup
 wn = turtle.Screen()
 wn.title("Galgenmännchen")
 t = turtle.Turtle()
@@ -32,39 +28,46 @@ def draw_guessed():
     t.goto(-150, -50)
     t.write(" ".join(guessed), font=("Arial", 24, "normal"))
 
+def update_game_state():
+    if "_" not in guessed:
+        GPIO.output(GREEN_LED_PIN, GPIO.HIGH)  # Spieler hat gewonnen
+        t.goto(-150, -100)
+        t.write("Gewonnen!", font=("Arial", 24, "normal"))
+        return True
+    elif attempts == 0:
+        GPIO.output(RED_LED_PIN, GPIO.HIGH)  # Spieler hat verloren
+        t.goto(-150, -100)
+        t.write("Verloren!", font=("Arial", 24, "normal"))
+        t.goto(-150, -130)
+        t.write(f"Das Wort war: {word}", font=("Arial", 24, "normal"))
+        return True
+    return False
+
 def guess(letter):
+    global attempts
     if letter in word:
         for i in range(len(word)):
             if word[i] == letter:
                 guessed[i] = letter
-        draw_guessed()
-        # Überprüfe, ob das Wort vollständig erraten wurde
-        if "_" not in guessed:
-            GPIO.output(GREEN_LED_PIN, GPIO.HIGH)  # Grünes Licht
-            t.goto(-150, -100)
-            t.write("Gewonnen!", font=("Arial", 24, "normal"))
     else:
-        # Falscher Buchstabe, aktualisiere die Darstellung
-        # Implementiere hier die Logik, um den Hangman zu zeichnen
-        pass
-    # Überprüfe, ob das Spiel verloren ist
-    if "_" not in guessed:
-        return
-    # Hier könntest du zählen, wie viele Versuche noch übrig sind und entsprechend handeln
-    # z.B. wenn keine Versuche mehr übrig sind:
-    # GPIO.output(RED_LED_PIN, GPIO.HIGH)  # Rotes Licht
+        attempts -= 1
+    draw_guessed()
+    return update_game_state()
 
 def main():
     draw_guessed()
-    # Hier könntest du eine Schleife einbauen, die Benutzereingaben annimmt
-    # Zum Beispiel (ohne tatsächliche Eingabeaufforderung):
-    # guess("e")
-    # Um es interaktiv zu machen, müsstest du eine Methode finden, die Eingaben über die Konsole oder
-    # eine andere Schnittstelle liest, da turtle selbst keine direkte Methode für Texteingaben hat.
+    while True:
+        user_guess = input("Rate einen Buchstaben: ").lower()
+        if len(user_guess) != 1 or not user_guess.isalpha():
+            print("Bitte gib genau einen Buchstaben ein.")
+            continue
+        if guess(user_guess):
+            print("Spiel beendet.")
+            break
 
 if __name__ == "__main__":
-    main()
-    wn.mainloop()
-
-# Vergiss nicht, am Ende die GPIO-Pins freizugeben
-GPIO.cleanup()
+    try:
+        main()
+    finally:
+        wn.mainloop()
+        GPIO.cleanup()  # Stelle sicher, dass die GPIO-Pins freigegeben werden
