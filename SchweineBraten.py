@@ -1,78 +1,70 @@
+import RPi.GPIO as GPIO
 import turtle
+import random
 
-def draw_hangman(step):
-    if step == 1:
-        turtle.forward(100)
-    elif step == 2:
-        turtle.right(180)
-        turtle.forward(50)
-    elif step == 3:
-        turtle.right(90)
-        turtle.forward(100)
-    elif step == 4:
-        turtle.right(90)
-        turtle.forward(50)
-    elif step == 5:
-        turtle.right(90)
-        turtle.forward(20)
-    elif step == 6:
-        turtle.right(90)
-        turtle.circle(10)
-    elif step == 7:
-        turtle.right(180)
-        turtle.circle(-10)
-    elif step == 8:
-        turtle.right(180)
-        turtle.forward(30)
-    elif step == 9:
-        turtle.right(180)
-        turtle.forward(15)
-        turtle.right(60)
-        turtle.forward(20)
-    elif step == 10:
-        turtle.right(180)
-        turtle.forward(20)
-        turtle.right(60)
-        turtle.forward(15)
-    elif step == 11:
-        turtle.right(180)
-        turtle.forward(15)
-        turtle.right(240)
-        turtle.forward(20)
-    elif step == 12:
-        turtle.right(180)
-        turtle.forward(20)
-        turtle.right(60)
-        turtle.forward(15)
-        turtle.right(120)
-        turtle.forward(20)
+# Setze die Pin-Nummerierung auf die GPIO-Bezeichnungen
+GPIO.setmode(GPIO.BCM)
+# Pin für die LED (Annahme: zweifarbige LED mit gemeinsamer Kathode)
+GREEN_LED_PIN = 24  # Grünes LED
+RED_LED_PIN = 23    # Rotes LED
 
-def play_hangman(word):
-    turtle.speed(1)
-    turtle.penup()
-    turtle.goto(-50, -50)
-    turtle.pendown()
+# Setze die LED-Pins als Ausgang
+GPIO.setup(GREEN_LED_PIN, GPIO.OUT)
+GPIO.setup(RED_LED_PIN, GPIO.OUT)
 
-    guessed_letters = []
-    attempts = 12
+# Wörter für das Spiel
+words = ["raspberry", "python", "turtle", "gpio"]
+# Wähle ein zufälliges Wort
+word = random.choice(words)
+# Erratene Buchstaben
+guessed = ["_"] * len(word)
 
-    while attempts > 0:
-        guess = turtle.textinput("Galgenmännchen", "Rate einen Buchstaben: ")
+# Initialisiere Turtle
+wn = turtle.Screen()
+wn.title("Galgenmännchen")
+t = turtle.Turtle()
+t.speed(0)
+t.hideturtle()
 
-        if guess in guessed_letters:
-            turtle.write("Du hast diesen Buchstaben bereits geraten.\n", move=False, align="left", font=("Arial", 16, "normal"))
-        elif guess in word:
-            guessed_letters.append(guess)
-            turtle.write("Gut geraten!", move=False, align="left", font=("Arial", 16, "normal"))
-        else:
-            attempts -= 1
-            draw_hangman(12 - attempts + 1)
+def draw_guessed():
+    t.clear()
+    t.penup()
+    t.goto(-150, -50)
+    t.write(" ".join(guessed), font=("Arial", 24, "normal"))
 
-        if set(guessed_letters) == set(word):
-            turtle.write("Du hast gewonnen!", move=False, align="left", font=("Arial", 16, "normal"))
-            return
+def guess(letter):
+    if letter in word:
+        for i in range(len(word)):
+            if word[i] == letter:
+                guessed[i] = letter
+        draw_guessed()
+        # Überprüfe, ob das Wort vollständig erraten wurde
+        if "_" not in guessed:
+            GPIO.output(GREEN_LED_PIN, GPIO.HIGH)  # Grünes Licht
+            t.goto(-150, -100)
+            t.write("Gewonnen!", font=("Arial", 24, "normal"))
+    else:
+        # Falscher Buchstabe, aktualisiere die Darstellung
+        # Implementiere hier die Logik, um den Hangman zu zeichnen
+        pass
+    # Überprüfe, ob das Spiel verloren ist
+    if "_" not in guessed:
+        return
+    # Hier könntest du zählen, wie viele Versuche noch übrig sind und entsprechend handeln
+    # z.B. wenn keine Versuche mehr übrig sind:
+    # GPIO.output(RED_LED_PIN, GPIO.HIGH)  # Rotes Licht
 
-    turtle.write("Du hast verloren. Das Wort war: " + word, move=False, align="left", font=("Arial", 16, "normal"))
+def main():
+    draw_guessed()
+    # Hier könntest du eine Schleife einbauen, die Benutzereingaben annimmt
+    # Zum Beispiel (ohne tatsächliche Eingabeaufforderung):
+    # guess("e")
+    # Um es interaktiv zu machen, müsstest du eine Methode finden, die Eingaben über die Konsole oder
+    # eine andere Schnittstelle liest, da turtle selbst keine direkte Methode für Texteingaben hat.
 
-play_hangman("python")
-turtle.done()
+if __name__ == "__main__":
+    main()
+    wn.mainloop()
+
+# Vergiss nicht, am Ende die GPIO-Pins freizugeben
+GPIO.cleanup()
