@@ -30,12 +30,12 @@ def draw_guessed():
 
 def update_game_state():
     if "_" not in guessed:
-        GPIO.output(GREEN_LED_PIN, GPIO.HIGH)  # Spieler hat gewonnen
+        GPIO.output(GREEN_LED_PIN, GPIO.LOW)  # Spieler hat gewonnen
         t.goto(-150, -100)
         t.write("Gewonnen!", font=("Arial", 24, "normal"))
         return True
     elif attempts == 0:
-        GPIO.output(RED_LED_PIN, GPIO.HIGH)  # Spieler hat verloren
+        GPIO.output(RED_LED_PIN, GPIO.LOW)  # Spieler hat verloren
         t.goto(-150, -100)
         t.write("Verloren!", font=("Arial", 24, "normal"))
         t.goto(-150, -130)
