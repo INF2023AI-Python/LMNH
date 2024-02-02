@@ -60,7 +60,7 @@ def play_hangman(word):
         guess = turtle.textinput("Galgenmännchen", "Rate einen Buchstaben: ")
 
         if guess in guessed_letters:
-            turtle.write("Du hast diesen Buchstaben bereits geraten.\l", move=False, align="left", font=("Arial", 16, "normal"))
+            turtle.write("Du hast diesen Buchstaben bereits geraten.\n", move=False, align="left", font=("Arial", 16, "normal"))
         elif guess in word:
             guessed_letters.append(guess)
             turtle.write("Gut geraten!", move=False, align="left", font=("Arial", 16, "normal"))
