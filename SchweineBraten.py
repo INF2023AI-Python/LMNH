@@ -122,4 +122,4 @@ if __name__ == "__main__":
         main()
     finally:
         wn.mainloop()
-       
+        GPIO.cleanup()
