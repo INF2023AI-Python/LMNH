@@ -5,7 +5,7 @@ import random
 # GPIO-Setup
 GPIO.setmode(GPIO.BCM)
 GREEN_LED_PIN = 24
-RED_LED_PIN = 23
+RED_LED_PIN = 24
 GPIO.setup(GREEN_LED_PIN, GPIO.OUT)
 GPIO.setup(RED_LED_PIN, GPIO.OUT)
 
@@ -70,4 +70,4 @@ if __name__ == "__main__":
         main()
     finally:
         wn.mainloop()
-        GPIO.cleanup()  # Stelle sicher, dass die GPIO-Pins freigegeben werden
+        GPIO.cleanup() 
