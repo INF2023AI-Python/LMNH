@@ -4,14 +4,13 @@ import tkinter as tk
 from tkinter import simpledialog
 
 # GPIO Setup
-LED_PIN = 24
+RED_LED_PIN = 24  # Annahme: Pin 24 für rote LED
+GREEN_LED_PIN = 25  # Annahme: Pin 25 für grüne LED
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(LED_PIN, GPIO.OUT)
-GPIO.output(LED_PIN, GPIO.LOW)  # LED aus
-
-# Initialisiere RGB LED
-red = GPIO.PWM(LED_PIN, 100)  # Rot
-green = GPIO.PWM(LED_PIN, 100)  # Grün
+GPIO.setup(RED_LED_PIN, GPIO.OUT)
+GPIO.setup(GREEN_LED_PIN, GPIO.OUT)
+GPIO.output(RED_LED_PIN, GPIO.LOW)  # Rote LED aus
+GPIO.output(GREEN_LED_PIN, GPIO.LOW)  # Grüne LED aus
 
 # Turtle Setup
 window = turtle.Screen()
